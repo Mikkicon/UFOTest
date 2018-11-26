@@ -15,6 +15,8 @@
 		ED198DBF21A5DC2E00DEE7D3 /* UFOTestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED198DBE21A5DC2E00DEE7D3 /* UFOTestTests.swift */; };
 		ED198DCA21A5DC2E00DEE7D3 /* UFOTestUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED198DC921A5DC2E00DEE7D3 /* UFOTestUITests.swift */; };
 		ED1A846221AB727000F72995 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = ED1A846121AB727000F72995 /* assets */; };
+		ED1A846421AB845F00F72995 /* MotionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1A846321AB845F00F72995 /* MotionHelper.swift */; };
+		ED1A846621AB84AC00F72995 /* VectorOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1A846521AB84AC00F72995 /* VectorOperations.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +51,8 @@
 		ED198DC921A5DC2E00DEE7D3 /* UFOTestUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UFOTestUITests.swift; sourceTree = "<group>"; };
 		ED198DCB21A5DC2E00DEE7D3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ED1A846121AB727000F72995 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
+		ED1A846321AB845F00F72995 /* MotionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionHelper.swift; sourceTree = "<group>"; };
+		ED1A846521AB84AC00F72995 /* VectorOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorOperations.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +103,8 @@
 		ED198DA621A5DC2B00DEE7D3 /* UFOTest */ = {
 			isa = PBXGroup;
 			children = (
+				ED1A846521AB84AC00F72995 /* VectorOperations.swift */,
+				ED1A846321AB845F00F72995 /* MotionHelper.swift */,
 				ED198DA721A5DC2B00DEE7D3 /* AppDelegate.swift */,
 				ED1A846121AB727000F72995 /* assets */,
 				ED198DAB21A5DC2B00DEE7D3 /* GameViewController.swift */,
@@ -261,6 +267,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				ED198DAC21A5DC2B00DEE7D3 /* GameViewController.swift in Sources */,
+				ED1A846621AB84AC00F72995 /* VectorOperations.swift in Sources */,
+				ED1A846421AB845F00F72995 /* MotionHelper.swift in Sources */,
 				ED198DA821A5DC2B00DEE7D3 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
