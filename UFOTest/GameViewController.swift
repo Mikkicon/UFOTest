@@ -11,67 +11,73 @@ import SceneKit
 
 class GameViewController: UIViewController {
     
-    let CategoryTree = 2
-    
-    var sceneView:SCNView!
-    var scene:SCNScene!
-    
+    var gameView:SCNView!
+    var gameScene:SCNScene!
+    var cameraControl:SCNNode!
     var ballNode:SCNNode!
-    var selfieStickNode:SCNNode!
-    
     var motion = MotionHelper()
-    var motionForce = SCNVector3(0, 0, 0)
-        
+    var motionForce = SCNVector3(0,0,0)
+    var sounds:[String:SCNAudioSource] = [:]
+    
     override func viewDidLoad() {
-        setupScene()
+        setup()
         setupNodes()
+        audioSetup()
     }
     
-    func setupScene(){
-        sceneView = self.view as! SCNView
-        sceneView.delegate = self
-        
-        //sceneView.allowsCameraControl = true
-        scene = SCNScene(named: "assets/MainScene.scn")
-        sceneView.scene = scene
-        
-        scene.physicsWorld.contactDelegate = self
-        
-        let tapRecognizer = UITapGestureRecognizer()
-        tapRecognizer.numberOfTapsRequired = 1
-        tapRecognizer.numberOfTouchesRequired = 1
-        
-        tapRecognizer.addTarget(self, action: #selector(GameViewController.sceneViewTapped(recognizer:)))
-        sceneView.addGestureRecognizer(tapRecognizer)
+    func setup(){
+        gameView = self.view as! SCNView
+//        gameView.allowsCameraControl = true
+        gameScene = SCNScene(named: "assets/MainScene.scn")
+        gameView.scene = gameScene
+        let tapRec = UITapGestureRecognizer()
+        tapRec.numberOfTapsRequired = 1
+        tapRec.numberOfTouchesRequired = 1
+        tapRec.addTarget(self, action: #selector(GameViewController.sceneTapped(recognizer:)))
+        gameView.addGestureRecognizer(tapRec)
+        gameView.delegate = self
+    }
+    func setupNodes(){
+        ballNode = gameScene.rootNode.childNode(withName: "ball", recursively: true)!
+        cameraControl = gameScene.rootNode.childNode(withName: "cameraControl", recursively: true)!
+    }
+    func audioSetup(){
+        let bounceSound = SCNAudioSource(fileNamed: "assets/bounce.mp3")!
+        bounceSound.load()
+        bounceSound.volume = 0.5
+        let backSound = SCNAudioSource(fileNamed: "assets/back.mp3")!
+        backSound.load()
+        backSound.volume = 0.01
+        backSound.loops = true
+        let musicPlayer = SCNAudioPlayer(source: backSound)
+        sounds["bounce"] = bounceSound
+        sounds["back"] = backSound
+        ballNode.addAudioPlayer(musicPlayer)
         
     }
+//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        sceneTapped(recognizer: touches)
+//    }
     
-    func setupNodes() {
-        ballNode = scene.rootNode.childNode(withName: "ball", recursively: true)!
-        ballNode.physicsBody?.contactTestBitMask = CategoryTree
-        selfieStickNode = scene.rootNode.childNode(withName: "camera", recursively: true)!
-    }
-    
- 
-    
-    @objc func sceneViewTapped (recognizer:UITapGestureRecognizer) {
-        let location = recognizer.location(in: sceneView)
-        
-        let hitResults = sceneView.hitTest(location, options: nil)
-        
-        if hitResults.count > 0 {
-            let result = hitResults.first
-            if let node = result?.node {
-                if node.name == "ball" {
-                    ballNode.physicsBody?.applyForce(SCNVector3(x: 0, y:4, z: -2), asImpulse: true)
+    @objc func sceneTapped(recognizer:UITapGestureRecognizer){
+        let location = recognizer.location(in: gameView)
+        let hits = gameView.hitTest(location, options: nil)
+        if hits.count > 0 {
+            print("hit count")
+            let result = hits.first
+            if let node = result?.node{
+                print("hit node")
+
+                if node.name == "ball"{
+                    print("node is ball")
+
+                    let jmpSnd = sounds["bounce"]!
+                    ballNode.runAction(SCNAction.playAudio(jmpSnd, waitForCompletion: false))
+                    ballNode.physicsBody?.applyForce(SCNVector3(0,3,-2), asImpulse: true)
                 }
             }
         }
-        
-        
     }
-    
-    
     override var shouldAutorotate: Bool {
         return false
     }
@@ -86,61 +92,34 @@ class GameViewController: UIViewController {
         // Release any cached data, images, etc that aren't in use.
     }
     
+
+    
+
+
 }
 
-extension GameViewController : SCNSceneRendererDelegate {
+extension GameViewController : SCNSceneRendererDelegate{
     func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
         let ball = ballNode.presentation
-        let ballPosition = ball.position
+        let ballposition = ball.position
         
-        let targetPosition = SCNVector3(x: ballPosition.x, y: ballPosition.y + 5, z:ballPosition.z + 5)
-        var cameraPosition = selfieStickNode.position
-        
-        let camDamping:Float = 0.3
-        
-        let xComponent = cameraPosition.x * (1 - camDamping) + targetPosition.x * camDamping
-        let yComponent = cameraPosition.y * (1 - camDamping) + targetPosition.y * camDamping
-        let zComponent = cameraPosition.z * (1 - camDamping) + targetPosition.z * camDamping
-        
-        cameraPosition = SCNVector3(x: xComponent, y: yComponent, z: zComponent)
-        selfieStickNode.position = cameraPosition
-        
-        
-        motion.getAccelerometerData { (x, y, z) in
-            self.motionForce = SCNVector3(x: x * 0.05, y:0, z: (y + 0.8) * -0.05)
-        }
-        
-        ballNode.physicsBody?.velocity += motionForce
+        let targetPos = SCNVector3(x: ballposition.x, y: ballposition.y, z: ballposition.z)
+        var cameraPos = cameraControl.position
+        let damping:Float = 0.3
+        let xComp = cameraPos.x * (1-damping) + targetPos.x * damping
+        let yComp = cameraPos.y * (1-damping) + targetPos.y * damping
+        let zComp = cameraPos.z * (1-damping) + targetPos.z * damping
+
+        cameraPos = SCNVector3(x: xComp, y: yComp, z: zComp)
+        cameraControl.position = cameraPos
         
     }
-    
-    
+}
+func +(left: SCNVector3, right: SCNVector3) -> SCNVector3 {
+    return SCNVector3(x:left.x + right.x, y: left.y + right.y, z: left.z + right.z)
 }
 
-extension GameViewController : SCNPhysicsContactDelegate {
-    func physicsWorld(_ world: SCNPhysicsWorld, didBegin contact: SCNPhysicsContact) {
-        var contactNode:SCNNode!
-        
-        if contact.nodeA.name == "ball" {
-            contactNode = contact.nodeB
-        }else{
-            contactNode = contact.nodeA
-        }
-        
-        if contactNode.physicsBody?.categoryBitMask == CategoryTree {
-            contactNode.isHidden = true
-            
-            let waitAction = SCNAction.wait(duration: 15)
-            let unhideAction = SCNAction.run { (node) in
-                node.isHidden = false
-            }
-            
-            let actionSequence = SCNAction.sequence([waitAction, unhideAction])
-            
-            contactNode.runAction(actionSequence)
-        }
-        
-    }
-    
-    
+
+func +=( left: inout SCNVector3, right: SCNVector3) {
+    left = left + right
 }
